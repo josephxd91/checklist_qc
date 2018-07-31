@@ -1,0 +1,145 @@
+-- MySQL Workbench Forward Engineering
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------
+-- Schema mydb
+-- -----------------------------------------------------
+-- -----------------------------------------------------
+-- Schema qc_help_revision
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
+-- Schema qc_help_revision
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `qc_help_revision` DEFAULT CHARACTER SET utf8 ;
+USE `qc_help_revision` ;
+
+-- -----------------------------------------------------
+-- Table `qc_help_revision`.`perfil`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `qc_help_revision`.`perfil` (
+  `idperfil` INT(11) NOT NULL AUTO_INCREMENT,
+  `perfil` VARCHAR(45) NULL DEFAULT 'USER',
+  `descripcion` TEXT NULL DEFAULT NULL,
+  `estado` TINYINT(1) NULL DEFAULT '1',
+  PRIMARY KEY (`idperfil`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 3
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `qc_help_revision`.`tema_herramienta`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `qc_help_revision`.`tema_herramienta` (
+  `idherramienta` INT(11) NOT NULL AUTO_INCREMENT,
+  `nombre_herramienta` VARCHAR(45) NULL DEFAULT NULL,
+  `estado` TINYINT(1) NULL DEFAULT '1',
+  `descripcion` TEXT NULL DEFAULT NULL,
+  `fecha_creacion` DATETIME NULL DEFAULT NULL,
+  `fecha_desactivacion` DATETIME NULL DEFAULT NULL,
+  PRIMARY KEY (`idherramienta`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `qc_help_revision`.`tema_elemento`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `qc_help_revision`.`tema_elemento` (
+  `idtema_elemento` INT(11) NOT NULL AUTO_INCREMENT,
+  `tema_elemento` VARCHAR(45) NULL DEFAULT NULL,
+  `descripcion` TEXT NULL DEFAULT NULL,
+  `estado` TINYINT(1) NULL DEFAULT '1',
+  `idherramienta` INT(11) NULL DEFAULT NULL,
+  PRIMARY KEY (`idtema_elemento`),
+  INDEX `idx_herramienta` (`idherramienta` ASC) VISIBLE,
+  INDEX `idx_estado` (`estado` ASC) VISIBLE,
+  CONSTRAINT `fk_herramienta`
+    FOREIGN KEY (`idherramienta`)
+    REFERENCES `qc_help_revision`.`tema_herramienta` (`idherramienta`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `qc_help_revision`.`usuario`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `qc_help_revision`.`usuario` (
+  `idusuario` INT(11) NOT NULL AUTO_INCREMENT,
+  `nombres` VARCHAR(45) NOT NULL,
+  `apellidos` VARCHAR(100) NOT NULL,
+  `matricula` VARCHAR(7) NOT NULL,
+  `perfil` INT(11) NOT NULL,
+  `username` VARCHAR(45) NOT NULL,
+  `password` VARCHAR(45) NOT NULL,
+  `estado` TINYINT(1) NULL DEFAULT '1',
+  `fecha_creacion` DATE NULL DEFAULT NULL,
+  `fecha_baja` DATE NULL DEFAULT NULL,
+  `email_everis` VARCHAR(100) NULL DEFAULT '',
+  PRIMARY KEY (`idusuario`),
+  INDEX `fk_perfil_idx` (`perfil` ASC) VISIBLE,
+  CONSTRAINT `fk_perfil`
+    FOREIGN KEY (`perfil`)
+    REFERENCES `qc_help_revision`.`perfil` (`idperfil`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `qc_help_revision`.`validacion`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `qc_help_revision`.`validacion` (
+  `idrevision_validacion` INT(11) NOT NULL AUTO_INCREMENT,
+  `idherramienta` INT(11) NOT NULL DEFAULT '0',
+  `idelemento` INT(11) NULL DEFAULT '0',
+  `revision` VARCHAR(45) NULL DEFAULT NULL,
+  `detalle` TEXT NULL DEFAULT NULL,
+  `ayuda` TEXT NULL DEFAULT NULL,
+  `fecha_creacion` DATETIME NULL DEFAULT NULL,
+  `fecha_desactivacion` DATETIME NULL DEFAULT NULL,
+  `estado` TINYINT(1) NULL DEFAULT '1',
+  `titulo` VARCHAR(250) NULL DEFAULT NULL,
+  `descripcion` TEXT NULL DEFAULT NULL,
+  PRIMARY KEY (`idrevision_validacion`),
+  INDEX `fk_t_herramienta_idx` (`idherramienta` ASC) VISIBLE,
+  INDEX `fk_t_elemnto_idx` (`idelemento` ASC) VISIBLE,
+  CONSTRAINT `fk_t_elemnto`
+    FOREIGN KEY (`idelemento`)
+    REFERENCES `qc_help_revision`.`tema_elemento` (`idtema_elemento`),
+  CONSTRAINT `fk_t_herramienta`
+    FOREIGN KEY (`idherramienta`)
+    REFERENCES `qc_help_revision`.`tema_herramienta` (`idherramienta`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `qc_help_revision`.`validacion_detalle`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `qc_help_revision`.`validacion_detalle` (
+  `idvalidacion_detalle` INT(11) NOT NULL AUTO_INCREMENT,
+  `idvalidacion` INT(11) NOT NULL,
+  `fecha_modificacion` DATETIME NULL DEFAULT NULL,
+  `fecha_moficacion_date` DATE NULL DEFAULT NULL,
+  `ultimo_cambio` TINYINT(1) NULL DEFAULT '1',
+  `idusuario` INT(11) NOT NULL,
+  PRIMARY KEY (`idvalidacion_detalle`),
+  INDEX `FK_USER_idx` (`idusuario` ASC) VISIBLE,
+  INDEX `FK_VALIDACION_idx` (`idvalidacion` ASC) VISIBLE,
+  CONSTRAINT `FK_USER`
+    FOREIGN KEY (`idusuario`)
+    REFERENCES `qc_help_revision`.`usuario` (`idusuario`),
+  CONSTRAINT `FK_VALIDACION`
+    FOREIGN KEY (`idvalidacion`)
+    REFERENCES `qc_help_revision`.`validacion` (`idrevision_validacion`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
